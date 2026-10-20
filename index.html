@@ -904,8 +904,11 @@
     }
 
     .carousel-dot {
+        display: block;
         width: 7px;
         height: 7px;
+        padding: 0;
+        border: 0;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.55);
         cursor: pointer;
@@ -3393,8 +3396,8 @@ section:not(.hero)::after {
                                         <button class="carousel-btn prev" type="button" aria-label="Previous image">‹</button>
                                         <button class="carousel-btn next" type="button" aria-label="Next image">›</button>
                                         <div class="carousel-dots">
-                                            <span class="carousel-dot active"></span>
-                                            <span class="carousel-dot"></span>
+                                            <button class="carousel-dot active" type="button" aria-label="Show image 1" aria-pressed="true"></button>
+                                            <button class="carousel-dot" type="button" aria-label="Show image 2" aria-pressed="false"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -3434,8 +3437,8 @@ section:not(.hero)::after {
                                         <button class="carousel-btn prev" type="button" aria-label="Previous image">‹</button>
                                         <button class="carousel-btn next" type="button" aria-label="Next image">›</button>
                                         <div class="carousel-dots">
-                                            <span class="carousel-dot active"></span>
-                                            <span class="carousel-dot"></span>
+                                            <button class="carousel-dot active" type="button" aria-label="Show image 1" aria-pressed="true"></button>
+                                            <button class="carousel-dot" type="button" aria-label="Show image 2" aria-pressed="false"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -4014,6 +4017,56 @@ Hi! Welcome to Emmarchive. I'm here to answer questions about Emma's education, 
 // =========================
 // RESPONSIVE PHOTO LIGHTBOX
 // =========================
+
+document.querySelectorAll(".carousel-container").forEach(function (carousel) {
+    const slides = Array.from(carousel.querySelectorAll(".carousel-slide"));
+    const previousButton = carousel.querySelector(".carousel-btn.prev");
+    const nextButton = carousel.querySelector(".carousel-btn.next");
+    const dots = Array.from(carousel.querySelectorAll(".carousel-dot"));
+    let activeIndex = slides.findIndex(function (slide) {
+        return slide.classList.contains("active");
+    });
+
+    if (!slides.length || !previousButton || !nextButton) {
+        return;
+    }
+
+    if (activeIndex < 0) {
+        activeIndex = 0;
+    }
+
+    function showSlide(index) {
+        activeIndex = (index + slides.length) % slides.length;
+
+        slides.forEach(function (slide, slideIndex) {
+            const isActive = slideIndex === activeIndex;
+            slide.classList.toggle("active", isActive);
+            slide.setAttribute("aria-hidden", String(!isActive));
+        });
+
+        dots.forEach(function (dot, dotIndex) {
+            const isActive = dotIndex === activeIndex;
+            dot.classList.toggle("active", isActive);
+            dot.setAttribute("aria-pressed", String(isActive));
+        });
+    }
+
+    previousButton.addEventListener("click", function () {
+        showSlide(activeIndex - 1);
+    });
+
+    nextButton.addEventListener("click", function () {
+        showSlide(activeIndex + 1);
+    });
+
+    dots.forEach(function (dot, dotIndex) {
+        dot.addEventListener("click", function () {
+            showSlide(dotIndex);
+        });
+    });
+
+    showSlide(activeIndex);
+});
 
 const photoLightbox = document.getElementById("photoLightbox");
 const lightboxImage = document.getElementById("lightboxImage");
